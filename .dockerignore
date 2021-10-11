@@ -8,6 +8,7 @@ jenkinsfiles
 .mailmap
 .tx
 *.sh
+!docker/docker-image-resources/*.sh
 *.md
 LICENSE
 

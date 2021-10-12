@@ -45,7 +45,7 @@ import org.hisp.dhis.util.ObjectUtils;
 /**
  * @author Luciano Fiandesio
  */
-public class TrackerReportUtils
+class TrackerReportUtils
 {
     protected static List<String> buildArgumentList( TrackerBundle bundle, List<Object> arguments )
     {

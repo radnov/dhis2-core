@@ -2,7 +2,7 @@
 
 pipeline {
     agent {
-        label 'ec2-jdk11-new'
+        label 'ec2-jdk8'
     }
 
     //triggers {
@@ -10,24 +10,23 @@ pipeline {
     //}
 
     options {
-        buildDiscarder(logRotator(numToKeepStr: '5'))
+        //buildDiscarder(logRotator(numToKeepStr: '5'))
         timeout(time: 20, activity: true)
     }
 
     environment {
         MAVEN_OPTS = '-Xms1024m -Xmx4096m'
-        JAVA_HOME = '/usr/lib/jvm/java-11-openjdk-amd64'
     }
 
     stages {
         stage ('Build') {
             steps {
                 echo 'Building DHIS2 ...'
-                script {
-                    withMaven(options: [artifactsPublisher(disabled: true)]) {
-                        sh 'mvn -X -T 4 --batch-mode --no-transfer-progress clean install -f dhis-2/pom-full.xml --update-snapshots'
-                    }
-                }
+                //script {
+                //    withMaven(options: [artifactsPublisher(disabled: true)]) {
+                //        sh 'mvn -X -T 4 --batch-mode --no-transfer-progress clean install -f dhis-2/pom-full.xml --update-snapshots'
+                //    }
+                //}
             }
         }
 

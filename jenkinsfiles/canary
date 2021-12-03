@@ -2,12 +2,12 @@
 
 pipeline {
     agent {
-        label 'ec2-jdk8'
+        label 'ec2-jdk11-new'
     }
 
-    triggers {
-        cron('H 23 * * 1,2,3,4,5,7')
-    }
+    //triggers {
+    //    cron('H 23 * * 1,2,3,4,5,7')
+    //}
 
     options {
         buildDiscarder(logRotator(numToKeepStr: '5'))
@@ -16,6 +16,7 @@ pipeline {
 
     environment {
         MAVEN_OPTS = '-Xms1024m -Xmx4096m'
+        JAVA_HOME = '/usr/lib/jvm/java-11-openjdk-amd64'
     }
 
     stages {
@@ -24,33 +25,46 @@ pipeline {
                 echo 'Building DHIS2 ...'
                 script {
                     withMaven(options: [artifactsPublisher(disabled: true)]) {
-                        sh 'mvn -X -T 4 clean install -f dhis-2/pom-full.xml -Pjdk8 --update-snapshots'
+                        sh 'mvn -X -T 4 --batch-mode --no-transfer-progress clean install -f dhis-2/pom-full.xml --update-snapshots'
                     }
                 }
             }
         }
 
-        stage ('Sync WAR') {
+        //stage ('Sync WAR') {
+        //    steps {
+        //        echo 'Syncing WAR ...'
+        //        sh 'curl "https://raw.githubusercontent.com/dhis2/dhis2-server-setup/master/ci/scripts/copy-war-s3.sh" -O'
+        //        sh 'chmod +x copy-war-s3.sh'
+        //        sh './copy-war-s3.sh canary ${GIT_BRANCH}'
+        //    }
+        //}
+
+        stage ('Create Javadocs & Copy to S3') {
             steps {
-                echo 'Syncing WAR ...'
-                sh 'curl "https://raw.githubusercontent.com/dhis2/dhis2-server-setup/master/ci/scripts/copy-war-s3.sh" -O'
-                sh 'chmod +x copy-war-s3.sh'
-                sh './copy-war-s3.sh canary ${GIT_BRANCH}'
+                script {
+                    withMaven(options: [artifactsPublisher(disabled: true)]) {
+                        sh 'mvn clean install javadoc:aggregate -DskipTests=true -f dhis-2/pom.xml'
+                    }
+                }
+                sh 'curl "https://raw.githubusercontent.com/dhis2/dhis2-server-setup/DEVOPS-114/ci/scripts/sync-javadocs-s3.sh" -O'
+                sh 'chmod +x sync-javadocs-s3.sh'
+                sh './sync-javadocs-s3.sh ${GIT_BRANCH}'
             }
         }
     }
 
-    post {
-        failure {
-            script {
-                slack.sendFailureMessage()
-            }
-        }
+    //post {
+    //    failure {
+    //        script {
+    //            slack.sendFailureMessage()
+    //        }
+    //    }
 
-        aborted {
-            script {
-                slack.sendInactivityMessage(20)
-            }
-        }
-    }
+    //    aborted {
+    //        script {
+    //            slack.sendInactivityMessage(20)
+    //        }
+    //    }
+    //}
 }

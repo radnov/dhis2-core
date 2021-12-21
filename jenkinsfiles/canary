@@ -72,6 +72,7 @@ pipeline {
 
             post {
                 success {
+                    sh 'mkdir -p ${WORKSPACE}/target/site/apidocs/'
                     javadoc javadocDir: 'target/site/apidocs/', keepAll: false
                 }
             }

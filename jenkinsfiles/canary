@@ -5,9 +5,9 @@ pipeline {
         label 'ec2-jdk8'
     }
 
-    triggers {
-        cron('H 23 * * 1,2,3,4,5,7')
-    }
+    //triggers {
+    //    cron('H 23 * * 1,2,3,4,5,7')
+    //}
 
     options {
         buildDiscarder(logRotator(numToKeepStr: '5'))
@@ -19,58 +19,75 @@ pipeline {
     }
 
     stages {
-        stage ('Publish canary docker image') {
-            steps {
-                echo "Publishing docker image to dhis2/core-canary"
-                script {
-                    def branch="${GIT_BRANCH}"
-                    def today = new Date()
-                    def formatted = "${today.format('yyyyMMdd')}"
-                    def source = "dhis2/core-dev:${branch}"
-                    def target = "dhis2/core-canary:${branch}"
+        //stage ('Publish canary docker image') {
+        //    steps {
+        //        echo "Publishing docker image to dhis2/core-canary"
+        //        script {
+        //            def branch="${GIT_BRANCH}"
+        //            def today = new Date()
+        //            def formatted = "${today.format('yyyyMMdd')}"
+        //            def source = "dhis2/core-dev:${branch}"
+        //            def target = "dhis2/core-canary:${branch}"
+        //
+        //            sh "docker pull ${source}"
+        //            sh "docker tag ${source} ${target}"
+        //            sh "docker tag ${source} ${target}-${formatted}"
+        //            withDockerRegistry([credentialsId: "docker-hub-credentials", url: ""]) {
+        //                sh "docker push ${target}"
+        //                sh "docker push ${target}-${formatted}"
+        //            }
+        //        }
+        //    }
+        //}
+        //stage ('Build') {
+        //    steps {
+        //        echo 'Building DHIS2 ...'
+        //        script {
+        //            withMaven(options: [artifactsPublisher(disabled: true)]) {
+        //                sh 'mvn -X -T 4 clean install -f dhis-2/pom-full.xml -Pjdk8 --update-snapshots'
+        //            }
+        //        }
+        //    }
+        //}
+        //
+        //stage ('Sync WAR') {
+        //    steps {
+        //        echo 'Syncing WAR ...'
+        //        sh 'curl "https://raw.githubusercontent.com/dhis2/dhis2-server-setup/master/ci/scripts/copy-war-s3.sh" -O'
+        //        sh 'chmod +x copy-war-s3.sh'
+        //        sh './copy-war-s3.sh canary ${GIT_BRANCH}'
+        //    }
+        //}
 
-                    sh "docker pull ${source}"
-                    sh "docker tag ${source} ${target}"
-                    sh "docker tag ${source} ${target}-${formatted}"
-                    withDockerRegistry([credentialsId: "docker-hub-credentials", url: ""]) {
-                        sh "docker push ${target}"
-                        sh "docker push ${target}-${formatted}"
-                    }           
-                }
-            }
-        }
-        stage ('Build') {
+        stage ('Generate Javadocs') {
             steps {
-                echo 'Building DHIS2 ...'
+                echo 'Generating Javadocs ...'
                 script {
                     withMaven(options: [artifactsPublisher(disabled: true)]) {
-                        sh 'mvn -X -T 4 clean install -f dhis-2/pom-full.xml -Pjdk8 --update-snapshots'
+                        sh 'mvn --batch-mode --no-transfer-progress clean install javadoc:aggregate -Pjavadoc -DskipTests=true -Dmaven.test.skip=true -f dhis-2/pom.xml'
                     }
                 }
             }
-        }
 
-        stage ('Sync WAR') {
-            steps {
-                echo 'Syncing WAR ...'
-                sh 'curl "https://raw.githubusercontent.com/dhis2/dhis2-server-setup/master/ci/scripts/copy-war-s3.sh" -O'
-                sh 'chmod +x copy-war-s3.sh'
-                sh './copy-war-s3.sh canary ${GIT_BRANCH}'
+            post {
+                success {
+                    javadoc javadocDir: 'dhis-2/target/site/apidocs/', keepAll: false
+                }
             }
         }
     }
 
-    post {
-        failure {
-            script {
-                slack.sendFailureMessage()
-            }
-        }
-
-        aborted {
-            script {
-                slack.sendInactivityMessage(20)
-            }
-        }
-    }
+    //post {
+    //    failure {
+    //        script {
+    //            slack.sendFailureMessage()
+    //        }
+    //    }
+    //
+    //    aborted {
+    //        script {
+    //            slack.sendInactivityMessage(20)
+    //        }
+    //    }
+    //}
 }

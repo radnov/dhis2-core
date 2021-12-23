@@ -39,18 +39,18 @@ pipeline {
         //        }
         //    }
         //}
-        //
-        //stage ('Build') {
-        //    steps {
-        //        echo 'Building DHIS2 ...'
-        //        script {
-        //            withMaven(options: [artifactsPublisher(disabled: true)]) {
-        //                sh 'mvn -X -T 4 --batch-mode --no-transfer-progress clean install -f dhis-2/pom-full.xml --update-snapshots'
-        //            }
-        //        }
-        //    }
-        //}
-        //
+
+        stage ('Build') {
+            steps {
+                echo 'Building DHIS2 ...'
+                script {
+                    withMaven(options: [artifactsPublisher(disabled: true)]) {
+                        sh 'mvn -X -T 4 --batch-mode --no-transfer-progress clean install -f dhis-2/pom-full.xml --update-snapshots'
+                    }
+                }
+            }
+        }
+
         //stage ('Sync WAR') {
         //    steps {
         //        echo 'Syncing WAR ...'

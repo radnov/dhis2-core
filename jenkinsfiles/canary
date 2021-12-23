@@ -2,7 +2,7 @@
 
 pipeline {
     agent {
-        label 'ec2-jdk11-test'
+        label 'ec2-jdk11'
     }
 
     triggers {

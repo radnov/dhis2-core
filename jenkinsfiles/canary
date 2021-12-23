@@ -64,7 +64,7 @@ pipeline {
                 echo 'Generating Javadocs ...'
                 script {
                     withMaven(options: [artifactsPublisher(disabled: true)]) {
-                        sh 'mvn --batch-mode --no-transfer-progress clean install javadoc:aggregate -Pjavadoc -DskipTests=true -Dmaven.test.skip=true -f dhis-2/pom.xml'
+                        sh 'mvn -X --batch-mode --no-transfer-progress clean install javadoc:aggregate -Pjavadoc -DskipTests=true -Dmaven.test.skip=true -f dhis-2/pom.xml'
                     }
                 }
             }

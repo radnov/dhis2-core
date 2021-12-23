@@ -25,57 +25,44 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.hisp.dhis.tracker.validation;
+package org.hisp.dhis.analytics.event.data;
 
-import java.util.Comparator;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import lombok.RequiredArgsConstructor;
+import org.hisp.dhis.common.ValueType;
+import org.hisp.dhis.dataelement.DataElement;
+import org.hisp.dhis.trackedentity.TrackedEntityAttribute;
 
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
-@Service
-@RequiredArgsConstructor
-public class TrackerValidationHookService
+public class AnalyticsDimensionsTestSupport
 {
-    @Qualifier( "validationOrder" )
-    private final List<Class<? extends TrackerValidationHook>> validationOrder;
-
-    @Qualifier( "ruleEngineValidationHooks" )
-    private final List<Class<? extends TrackerValidationHook>> ruleEngineValidationHooks;
-
-    @Qualifier( "validationOrderMap" )
-    private final Map<Class<? extends TrackerValidationHook>, Integer> validationOrderMap;
-
-    /**
-     * Sort the hooks in the order they are represented in the validation order
-     * list
-     *
-     * @param hooks list to sort
-     */
-    public List<TrackerValidationHook> sortValidationHooks( List<TrackerValidationHook> hooks )
+    static List<TrackedEntityAttribute> allValueTypeTEAs()
     {
-        return hooks
-            .stream().filter( h -> validationOrder.contains( h.getClass() ) )
-            .sorted( Comparator
-                .comparingInt( o -> validationOrderMap.get( o.getClass() ) ) )
-            .collect( Collectors.toList() );
+        return buildWithAllValueTypes( valueType -> {
+            TrackedEntityAttribute trackedEntityAttribute = new TrackedEntityAttribute();
+            trackedEntityAttribute.setUid( "uid" + valueType.name() );
+            trackedEntityAttribute.setValueType( valueType );
+            return trackedEntityAttribute;
+        } ).collect( Collectors.toList() );
     }
 
-    /**
-     * Get just rule engine validation hooks.
-     *
-     * @param hooks list to filter
-     */
-    public List<TrackerValidationHook> getRuleEngineValidationHooks( List<TrackerValidationHook> hooks )
+    static Set<DataElement> allValueTypeDataElements()
     {
-        return hooks
-            .stream()
-            .filter( h -> ruleEngineValidationHooks.contains( h.getClass() ) )
-            .collect( Collectors.toList() );
+        return buildWithAllValueTypes( valueType -> {
+            DataElement dataElement = new DataElement();
+            dataElement.setUid( "uid" + valueType.name() );
+            dataElement.setValueType( valueType );
+            return dataElement;
+        } ).collect( Collectors.toSet() );
     }
 
+    static <T> Stream<T> buildWithAllValueTypes( Function<ValueType, T> mapper )
+    {
+        return Arrays.stream( ValueType.values() )
+            .map( mapper );
+    }
 }

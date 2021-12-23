@@ -25,38 +25,33 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.hisp.dhis.dxf2.events.importer.delete.validation;
+package org.hisp.dhis.analytics.dimension.mappers;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static org.hisp.dhis.importexport.ImportStrategy.DELETE;
-
-import java.util.List;
-import java.util.Map;
-import java.util.function.Predicate;
+import java.util.Set;
 
 import lombok.Getter;
 
-import org.hisp.dhis.dxf2.events.importer.Checker;
-import org.hisp.dhis.dxf2.events.importer.EventImporterValidationRunner;
-import org.hisp.dhis.dxf2.events.importer.ImportStrategyUtils;
-import org.hisp.dhis.dxf2.events.importer.ValidatingEventChecker;
-import org.hisp.dhis.importexport.ImportStrategy;
-import org.springframework.stereotype.Component;
+import org.hisp.dhis.analytics.dimension.BaseDimensionMapper;
+import org.hisp.dhis.analytics.dimension.DimensionResponse;
+import org.hisp.dhis.category.Category;
+import org.hisp.dhis.category.CategoryOptionGroupSet;
+import org.hisp.dhis.common.BaseDimensionalObject;
+import org.hisp.dhis.common.BaseIdentifiableObject;
+import org.springframework.stereotype.Service;
 
-/**
- * @author maikel arabori
- */
-@Component
-public class DeleteValidatingEventChecker extends ValidatingEventChecker
+@Service
+public class BaseDimensionalObjectMapper extends BaseDimensionMapper
 {
+
     @Getter
-    private final Predicate<ImportStrategy> supportedPredicate = ImportStrategyUtils::isDelete;
+    private final Set<Class<? extends BaseIdentifiableObject>> supportedClasses = Set.of(
+        CategoryOptionGroupSet.class,
+        Category.class );
 
-    public DeleteValidatingEventChecker( final Map<ImportStrategy, List<Checker>> checkersByImportStrategy,
-        EventImporterValidationRunner validationRunner )
+    @Override
+    public DimensionResponse map( BaseIdentifiableObject dimension )
     {
-        super( checkNotNull(
-            checkNotNull( checkersByImportStrategy ).get( DELETE ) ), validationRunner );
+        return super.map( dimension )
+            .withDimensionType( ((BaseDimensionalObject) dimension).getDimensionType().name() );
     }
-
 }

@@ -25,42 +25,29 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.hisp.dhis.dxf2.events.importer;
+package org.hisp.dhis.analytics.dimension.mappers;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Predicate;
+import static org.hisp.dhis.analytics.dimension.DimensionMapperTestSupport.asserter;
 
-import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.tuple.Pair;
+import org.hisp.dhis.analytics.dimension.DimensionResponse;
+import org.hisp.dhis.common.BaseDimensionalItemObject;
+import org.hisp.dhis.common.DimensionItemType;
+import org.junit.Test;
 
-import org.hisp.dhis.dxf2.events.event.Event;
-import org.hisp.dhis.dxf2.events.importer.context.WorkContext;
-import org.hisp.dhis.dxf2.importsummary.ImportSummary;
-import org.hisp.dhis.importexport.ImportStrategy;
+import com.google.common.collect.ImmutableList;
 
-@RequiredArgsConstructor
-public abstract class ValidatingEventChecker implements EventChecker
+public class BaseDimensionalItemObjectMapperTest
 {
 
-    private final List<? extends Checker> checkers;
+    private static final DimensionItemType DIMENSION_ITEM_TYPE = DimensionItemType.INDICATOR;
 
-    private final EventImporterValidationRunner validationRunner;
-
-    @Override
-    public List<ImportSummary> check( final WorkContext ctx, final List<Event> events )
+    @Test
+    public void testDimensionalItemObjectMapper()
     {
-        if ( isSupported( ctx.getImportOptions().getImportStrategy() ) )
-        {
-            return validationRunner.run( ctx, events, checkers );
-        }
-        return Collections.emptyList();
+        asserter( new BaseDimensionalItemObjectMapper(),
+            BaseDimensionalItemObject::new,
+            ImmutableList.of( b -> b.setDimensionItemType( DIMENSION_ITEM_TYPE ) ),
+            ImmutableList.of( Pair.of( DimensionResponse::getDimensionType, DIMENSION_ITEM_TYPE ) ) );
     }
-
-    private boolean isSupported( ImportStrategy importStrategy )
-    {
-        return getSupportedPredicate().test( importStrategy );
-    }
-
-    protected abstract Predicate<ImportStrategy> getSupportedPredicate();
-
 }

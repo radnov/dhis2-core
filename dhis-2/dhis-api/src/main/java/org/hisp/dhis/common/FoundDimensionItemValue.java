@@ -25,11 +25,36 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.hisp.dhis.analytics.event;
+package org.hisp.dhis.common;
 
-public interface EventAnalyticsDimensionalItemService
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+
+import org.hisp.dhis.category.CategoryOptionCombo;
+import org.hisp.dhis.organisationunit.OrganisationUnit;
+import org.hisp.dhis.period.Period;
+
+/**
+ * DimensionItemObject data as found with organisation unit, period, attribute
+ * option combination, and a value.
+ *
+ * @author Jim Grace
+ */
+@Getter
+@ToString
+@EqualsAndHashCode
+@AllArgsConstructor
+public class FoundDimensionItemValue
 {
-    EventsAnalyticsDimensionalItems getQueryDimensionalItemsByProgramStageId( String programStageId );
+    private final OrganisationUnit organisationUnit;
 
-    EventsAnalyticsDimensionalItems getAggregateDimensionalItemsByProgramStageId( String programStageId );
+    private final Period period;
+
+    private final CategoryOptionCombo attributeOptionCombo;
+
+    private final DimensionalItemObject dimensionalItemObject;
+
+    private final Object value;
 }

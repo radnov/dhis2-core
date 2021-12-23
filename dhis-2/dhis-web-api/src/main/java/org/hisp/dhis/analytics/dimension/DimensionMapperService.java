@@ -25,20 +25,38 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.hisp.dhis.dxf2.events.importer;
+package org.hisp.dhis.analytics.dimension;
 
-import java.util.List;
+import static org.hisp.dhis.hibernate.HibernateProxyUtils.getRealClass;
 
-import org.hisp.dhis.dxf2.events.event.Event;
-import org.hisp.dhis.dxf2.events.importer.context.WorkContext;
-import org.hisp.dhis.dxf2.importsummary.ImportSummary;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
-/**
- * Simple interface that provides checking capabilities on events.
- *
- * @author maikel arabori
- */
-public interface EventChecker
+import lombok.RequiredArgsConstructor;
+
+import org.hisp.dhis.common.BaseIdentifiableObject;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class DimensionMapperService
 {
-    List<ImportSummary> check( final WorkContext workContext, final List<Event> events );
+    private final Collection<DimensionMapper> mappers;
+
+    public Collection<DimensionResponse> toDimensionResponse( Collection<BaseIdentifiableObject> dimensions )
+    {
+        return dimensions.stream()
+            .map( this::toDimensionResponse )
+            .collect( Collectors.toList() );
+    }
+
+    private DimensionResponse toDimensionResponse( BaseIdentifiableObject dimension )
+    {
+        return mappers.stream()
+            .filter( dimensionMapper -> dimensionMapper.supports( dimension ) )
+            .findFirst()
+            .map( dimensionMapper -> dimensionMapper.map( dimension ) )
+            .orElseThrow( () -> new IllegalArgumentException(
+                "Unsupported dimension type: " + getRealClass( dimension ) ) );
+    }
 }

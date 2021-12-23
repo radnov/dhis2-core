@@ -72,7 +72,7 @@ pipeline {
 
             post {
                 success {
-                    javadoc javadocDir: 'target/site/apidocs/', keepAll: false
+                    javadoc javadocDir: 'dhis-2/target/site/apidocs', keepAll: false
                 }
             }
         }

@@ -217,7 +217,6 @@
         <maven-resources-plugin.version>3.2.0</maven-resources-plugin.version>
         <maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
         <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
-<!--        <maven-javadoc-plugin.version>3.3.1</maven-javadoc-plugin.version>-->
         <maven-antrun-plugin.version>1.7</maven-antrun-plugin.version>
         <maven-enforcer-plugin.version>3.0.0</maven-enforcer-plugin.version>
         <maven-dependency-plugin.version>3.2.0</maven-dependency-plugin.version>
@@ -554,20 +553,17 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>${maven-javadoc-plugin.version}</version>
-<!-- Duplicated configuration? -->
-<!--                    <configuration>-->
-<!--                        <sourcepath>${project.basedir}/target/generated-sources/delombok</sourcepath>-->
-<!--                        <additionalparam>-Xdoclint:none</additionalparam>-->
-<!--                    </configuration>-->
-<!-- Leftover javadoc:jar goal? -->
-<!--                    <executions>-->
-<!--                        <execution>-->
-<!--                            <id>attach-javadocs</id>-->
-<!--                            <goals>-->
-<!--                                <goal>jar</goal>-->
-<!--                            </goals>-->
-<!--                        </execution>-->
-<!--                    </executions>-->
+                    <configuration>
+                        <additionalparam>-Xdoclint:none</additionalparam>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>attach-javadocs</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -731,21 +727,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${maven-javadoc-plugin.version}</version>
-<!--                <inherited>false</inherited>-->
                 <configuration>
-                    <sourcepath>${project.basedir}/target/generated-sources/delombok</sourcepath>
+<!--                    <sourcepath>${project.basedir}/**/target/generated-sources/delombok</sourcepath>-->
+                    <sourcepath>${project.basedir}/dhis-api/target/generated-sources/delombok</sourcepath>
                     <additionalparam>-Xdoclint:none</additionalparam>
                 </configuration>
-<!-- Same result as with using executing javadoc:aggregate goal from the commandline -->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>aggregate</id>-->
-<!--                        <goals>-->
-<!--                            <goal>aggregate</goal>-->
-<!--                        </goals>-->
-<!--                        <phase>install</phase>-->
-<!--                    </execution>-->
-<!--                </executions>-->
             </plugin>
         </plugins>
 
